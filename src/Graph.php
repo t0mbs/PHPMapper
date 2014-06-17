@@ -36,9 +36,7 @@ class Graph {
 			$weighed_related_nodes = [];
 			foreach ($node->related_nodes as $rel_node_key) {
 				$weighed_related_nodes[$rel_node_key] = 
-					$node->getDistance(
-						$this->node_list[$rel_node_key]->coordinates
-						);
+					GraphCalc::getDistance($node->coordinates, $this->node_list[$rel_node_key]->coordinates);
 			}
 			$node->related_nodes = $weighed_related_nodes;
 		}
@@ -88,12 +86,5 @@ class Graph {
 			}
 		}
 		return $node_stack[$end_node];
-	}
-
-	/*
-	REMOVE
-	 */
-	public function dirtyDebug($thing) {
-		echo "<pre>".print_r($thing, true)."</pre>";
 	}
 }

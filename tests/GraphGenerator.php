@@ -5,6 +5,7 @@
 class GraphGenerator {
 	protected $max_x;
 	protected $max_y;
+	protected $node_list;
 
 	public function __construct($max_x, $max_y) {
 		$this->max_x = $max_x;
@@ -12,8 +13,9 @@ class GraphGenerator {
 	}
 
 	/**
-	 * Generate a random graph as a JSON file
+	 * Generate a random graph Node & Edge
 	 * @param  float $node_density determines on average how many nodes per square unit
+	 * @return array              array of Node ob
 	 */
 	public function randomGraph($node_density) {
 		$node_count = $this->max_x * $this->max_y * $node_density;
@@ -31,17 +33,7 @@ class GraphGenerator {
 				$connected_nodes
 				);
 		}
-		file_put_contents(
-			'resources/rand-' . time() . '.json', 
-			json_encode($node_list, JSON_PRETTY_PRINT)
-			);
+		$this->node_list = $node_list;
+		return $node_list;
 	}
-	/*
-	Lets set max-X to 100, max-Y to 100
-	What does a Graph need?
-	1. Nodes
-		* names
-		* coordinates
-		* links
-	 */
 }

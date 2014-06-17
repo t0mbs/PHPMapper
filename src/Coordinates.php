@@ -17,8 +17,8 @@ class Coordinates {
 	public function getDistance($coordinates) {
 		return round(
 			sqrt(
-				($coordinates->x - $this->x)^2 + 
-				($coordinates->y - $this->y)^2
+				pow(($coordinates->x - $this->x), 2) + 
+				pow(($coordinates->y - $this->y), 2)
 				),
 			2
 			);

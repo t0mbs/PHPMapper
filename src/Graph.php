@@ -31,12 +31,14 @@ class Graph {
 	 */
 	protected function compileEdgeLength() {
 		foreach ($this->node_list as $node) {
+			$weighed_related_nodes = [];
 			foreach ($node->related_nodes as $rel_node_key) {
-				$node->related_nodes[$rel_node_key] = 
+				$weighed_related_nodes[$rel_node_key] = 
 					$node->coordinates->getDistance(
 						$this->node_list[$rel_node_key]->coordinates
 						);
 			}
+			$node->related_nodes = $weighed_related_nodes;
 		}
 	}
 

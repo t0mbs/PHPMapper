@@ -51,12 +51,14 @@ class Graph {
 	public function getShortestPath($start_node, $end_node) {		
 		//Instantiate array of node keys to default distance (NULL)
 		foreach ($this->node_list as $key => $value){
-			$dijkstras_nodes[$key] = INF;
+			$dijkstras_nodes[$key]['weight'] = INF;
+			$dijkstras_nodes[$key]['trace'] = NULL;
 		}
 
 		//Start Node search at the specified start node
 		$current_key = $start_node;
-		$dijkstras_nodes[$current_key] = 0;
+		$dijkstras_nodes[$current_key]['weight'] = 0;
+		$dijkstras_nodes[$current_key]['trace'][$current_key] = 0;
 
 		while (isset($dijkstras_nodes[$end_node]) && $current_key != $end_node) {
 			//Symlink because these paths are too damn long!
@@ -64,26 +66,26 @@ class Graph {
 
 			//set new weights
 			foreach($related_nodes as $linked_key => $linked_weight) {
-				$new_weight = $dijkstras_nodes[$current_key] + $linked_weight;
+				$new_weight = $dijkstras_nodes[$current_key]['weight'] + $linked_weight;
 				if (isset($dijkstras_nodes[$linked_key]) && 
-					$dijkstras_nodes[$linked_key] > $new_weight)
-					$dijkstras_nodes[$linked_key] = $new_weight;
+					$dijkstras_nodes[$linked_key]['weight'] > $new_weight) {
+					$dijkstras_nodes[$linked_key]['weight'] = $new_weight;
+					$dijkstras_nodes[$linked_key]['trace'] = $dijkstras_nodes[$current_key]['trace'];
+					$dijkstras_nodes[$linked_key]['trace'][$linked_key] = $linked_weight;
+				}
 			}
 			unset($dijkstras_nodes[$current_key]);
 
 			//find next lowest weighed node
 			$total_distance = NULL;
 			foreach($dijkstras_nodes as $key => $value) {
-				if($value < $total_distance || is_null($total_distance)) {
+				if($value['weight'] < $total_distance || is_null($total_distance)) {
 					$current_key = $key;
-					$total_distance = $value;
+					$total_distance = $value['weight'];
 				}
 			}
 		}
-		echo "Total Distance = $total_distance";
-
-		$shortestPath = array('Implement');
-		return $shortestPath;
+		return $dijkstras_nodes[$end_node];
 	}
 
 	/*

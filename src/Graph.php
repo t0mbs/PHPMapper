@@ -9,6 +9,7 @@ class Graph {
 		$this->loadMap($map_name);
 		$this->compileEdgeLength();
 	}
+
 	/**
 	 * Loads map's nodes from a specified JSON file
 	 * @param  string $map_name the 
@@ -25,6 +26,7 @@ class Graph {
 					);
 		}
 	}
+
 	/**
 	 * Compiles the length of each node's edges using this and the relevant 
 	 * node's coordinates
@@ -34,7 +36,7 @@ class Graph {
 			$weighed_related_nodes = [];
 			foreach ($node->related_nodes as $rel_node_key) {
 				$weighed_related_nodes[$rel_node_key] = 
-					$node->coordinates->getDistance(
+					$node->getDistance(
 						$this->node_list[$rel_node_key]->coordinates
 						);
 			}
@@ -48,44 +50,44 @@ class Graph {
 	 * @param  string $end_node   The node key at which we end
 	 * @return array             The trace of the paths we took
 	 */
-	public function getShortestPath($start_node, $end_node) {		
-		//Instantiate array of node keys to default distance (NULL)
+	public function getShortestPath($start_node, $end_node) {	
+
+		//Instantiate array of node keys to default distance (INF)
 		foreach ($this->node_list as $key => $value){
-			$dijkstras_nodes[$key]['weight'] = INF;
-			$dijkstras_nodes[$key]['trace'] = NULL;
+			$node_stack[$key]['weight'] = INF;
 		}
 
-		//Start Node search at the specified start node
+		//Set initial values
 		$current_key = $start_node;
-		$dijkstras_nodes[$current_key]['weight'] = 0;
-		$dijkstras_nodes[$current_key]['trace'][$current_key] = 0;
+		$node_stack[$current_key]['weight'] = 0;
+		$node_stack[$current_key]['trace'][$current_key] = 0;
 
-		while (isset($dijkstras_nodes[$end_node]) && $current_key != $end_node) {
+		while (isset($node_stack[$end_node]) && $current_key != $end_node) {
 			//Symlink because these paths are too damn long!
 			$related_nodes =& $this->node_list[$current_key]->related_nodes;
 
 			//set new weights
 			foreach($related_nodes as $linked_key => $linked_weight) {
-				$new_weight = $dijkstras_nodes[$current_key]['weight'] + $linked_weight;
-				if (isset($dijkstras_nodes[$linked_key]) && 
-					$dijkstras_nodes[$linked_key]['weight'] > $new_weight) {
-					$dijkstras_nodes[$linked_key]['weight'] = $new_weight;
-					$dijkstras_nodes[$linked_key]['trace'] = $dijkstras_nodes[$current_key]['trace'];
-					$dijkstras_nodes[$linked_key]['trace'][$linked_key] = $linked_weight;
+				$new_weight = $node_stack[$current_key]['weight'] + $linked_weight;
+				if (isset($node_stack[$linked_key]) && 
+					$node_stack[$linked_key]['weight'] > $new_weight) {
+					$node_stack[$linked_key]['weight'] = $new_weight;
+					$node_stack[$linked_key]['trace'] = $node_stack[$current_key]['trace'];
+					$node_stack[$linked_key]['trace'][$linked_key] = $linked_weight;
 				}
 			}
-			unset($dijkstras_nodes[$current_key]);
+			unset($node_stack[$current_key]);
 
 			//find next lowest weighed node
 			$total_distance = NULL;
-			foreach($dijkstras_nodes as $key => $value) {
+			foreach($node_stack as $key => $value) {
 				if($value['weight'] < $total_distance || is_null($total_distance)) {
 					$current_key = $key;
 					$total_distance = $value['weight'];
 				}
 			}
 		}
-		return $dijkstras_nodes[$end_node];
+		return $node_stack[$end_node];
 	}
 
 	/*

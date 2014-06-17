@@ -3,7 +3,7 @@
  * Street class file
  */
 class Street {
-	protected $name;
+	public $name;
 	public $node_list;
 
 	public function __construct($name, $node_list) {

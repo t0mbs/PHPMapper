@@ -46,7 +46,7 @@ class Graph {
 	 * An implementation of Dijkstra's graph traversal algorithm
 	 * @param  string $start_node The node key from which to start
 	 * @param  string $end_node   The node key at which we end
-	 * @return array             The trace of the paths we took
+	 * @return array             The trace of the shortest path
 	 */
 	public function getShortestPath($start_node, $end_node) {	
 

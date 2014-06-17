@@ -19,8 +19,8 @@ class Graph {
 			$this->node_list[$node_key] = 
 				new Node(
 					$node_key,
-					$node->coordinates[0],
-					$node->coordinates[1],
+					$node->coordinates->x,
+					$node->coordinates->y,
 					$node->related_nodes
 					);
 		}

@@ -1,13 +1,13 @@
 <?php
 /**
- * Street class file
+ * Road class file
  */
-class Street {
+class Road {
 	public $name;
-	public $node_list;
+	public $nodes;
 
-	public function __construct($name, $node_list) {
+	public function __construct($name, $nodes) {
 		$this->name = $name;
-		$this->node_list = $node_list;
+		$this->nodes = $nodes;
 	}
 }

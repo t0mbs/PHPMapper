@@ -12,7 +12,7 @@ $(document).ready(function() {
 
 		for (var j = roads.length - 1; j >= 0; j--) {
     		c.strokeStyle=getRandomColor();
-    		var road = roads[j];
+    		var road = roads[j].nodes;
     		for (var k = road.length - 2; k >= 0; k--) {
     			var n0 = nodes[road[k]].coords;
     			var n1 = nodes[road[k+1]].coords;

@@ -21,10 +21,18 @@ class MapGenerator extends GraphGenerator {
 			foreach ($n0->related_nodes as $n1) {
 				$n1 = $this->getNode($n1);
 				if ($this->roadUnpaved($n0->key, $n1->key)) {
-					$this->roads[] = $this->buildRoad($n0, $n1);
+					$this->roads[] = new Road(
+						'',
+						$this->buildRoad($n0, $n1)
+						);
 				}
 			}
 		}
+
+		foreach ($this->roads as $road) {
+			$road->name = $this->generateName(count($road->nodes));
+		}
+
 		return array(
 			'roads' => $this->roads,
 			'nodes' => $this->nodes
@@ -65,8 +73,8 @@ class MapGenerator extends GraphGenerator {
 				$road = $this->roads[$road_key];
 				unset($this->roads[$road_key]);
 
-				$road[] = $n0->key;
-				return $road;
+				$road->nodes[] = $n0->key;
+				return $road->nodes;
 			}
 		} else {
 			return array($n0->key, $n1->key);
@@ -96,7 +104,7 @@ class MapGenerator extends GraphGenerator {
 		if (count($this->roads) == 0) return NULL;
 
 		foreach ($this->roads as $key => $road) {
-			if (in_array($n0, $road) && in_array($n1, $road)) {
+			if (in_array($n0, $road->nodes) && in_array($n1, $road->nodes)) {
 				return $key;
 			}
 		}
@@ -118,5 +126,67 @@ class MapGenerator extends GraphGenerator {
 				&& $this->getRoad($n1, $n2) === NULL
 				);
 		}
+	}
+
+	private function generateName($count) {
+		$type_array = array(
+			'l' => array(
+				'lane',
+				'alley'
+				),
+			'm' => array(
+				'route',
+				'road',
+				'street'
+				),
+			'h' => array(
+				'avenue',
+				'boulevard'
+				),
+			'e' => array(
+				'highway',
+				'expressway'
+				)
+			);
+
+		$name_array = array(
+			'a' => array(
+				'arlington'
+				),
+			'b' => array(
+				'bowden'
+				),
+			'e' => array(
+				'entropy'
+				),
+			'h' => array(
+				'helmington'
+				),
+			'l' => array(
+				'leitner'
+				),
+			'r' => array(
+				'rascally'
+				),
+			's' => array(
+				'spock'
+				)
+			);
+
+		switch ($count) {
+			case 2:
+				$type = $type_array['l'][array_rand($type_array['l'])];
+				break;
+			case 3:
+				$type = $type_array['m'][array_rand($type_array['m'])];
+				break;
+			case 4:
+				$type = $type_array['h'][array_rand($type_array['h'])];
+				break;
+			default:
+				$type = $type_array['e'][array_rand($type_array['e'])];
+				break;
+		}
+		return ucwords($name_array[$type[0]][array_rand($name_array[$type[0]])] . ' ' . $type);
 	}
 }

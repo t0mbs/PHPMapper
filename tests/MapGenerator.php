@@ -9,11 +9,10 @@ class MapGenerator extends GraphGenerator {
 
 	/**
 	 * Generate a random Map made up of Nodes and Roads
-	 * @param  float $density determines on average how many nodes per square unit
 	 * @return array          Array of Nodes and Roads from which to build a graph
 	 */
-	public function randomMap($density) {
-		$nodes = $this->randomGraph($density);
+	public function randomMap() {
+		$nodes = $this->randomGraph();
 		$exclusion_array = array();
 		$roads = array();
 

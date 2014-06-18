@@ -3,7 +3,7 @@
  * GraphElt class file
  */
 abstract class GraphElt {
-	public $coordinates;
+	public $coords;
 
 	/**
 	 * Sets an element's coordinates
@@ -11,6 +11,6 @@ abstract class GraphElt {
 	 * @param int $y the y coordinates
 	 */
 	public function setCoordinates($x, $y) {
-		$this->coordinates = new Coordinates($x, $y);
+		$this->coords = new Coordinates($x, $y);
 	}
 }

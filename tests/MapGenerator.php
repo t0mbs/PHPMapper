@@ -3,6 +3,7 @@
  * MapGenerator class file
  */
 class MapGenerator extends GraphGenerator {
+	private $roads = array();
 	public function __construct($x, $y) {
 		parent::__construct($x, $y);
 	}
@@ -13,84 +14,109 @@ class MapGenerator extends GraphGenerator {
 	 */
 	public function randomMap() {
 		$nodes = $this->randomGraph();
-		$exclusion_array = array();
-		$roads = array();
 
-		foreach ($nodes as $node) {
-			$related_nodes = $node->related_nodes;
-			foreach ($related_nodes as $key => $rel) {
-				unset($related_nodes[$key]);
-
-				if (!array_key_exists($rel, $exclusion_array) || 
-					!in_array($node->key, $exclusion_array[$rel])) {
-
-					$min_angle = INF;
-					foreach ($related_nodes as $rel2) {
-						//Get angle $rel - $node - $rel2
-						$angle = abs(180 - 
-							GraphCalc::getAngle(
-								$this->getCoords($rel),
-								$node->coordinates,
-								$this->getCoords($rel2)
-								)
-							);
-
-						if ($angle < $min_angle) {
-							$min_angle = $angle;
-							$min_rel2 = $rel2;
-						}
-					}
-					$rel2 = $min_rel2;
-
-					//If abs(180-angle) <= 30, a 3 point road can be made / appended
-					if ($min_angle <= 30) {
-
-						//If rel & node are already in a road, rel2 can be appended to that road
-						$road_match = false;
-						foreach ($roads as $key => $road) {
-							foreach($road as $skey => $road_node) {
-								if ($road_node == $rel && array_key_exists($skey + 1, $road) && $node->key == $road[$skey+1]) {
-									$roads[$key][] = $rel2;
-									$road_match = true;
-									break 2;
-								}
-							}
-						}
-
-						//Else make a new three point road rel-node-rel2
-						if (!$road_match) {
-							$roads[] = array($rel, $node->key, $rel2);
-						}
-
-					} else {
-						//Two new roads 2pt roads
-						$roads[] = array($rel, $node->key);
-						$roads[] = array($node->key, $rel2);
-					}
-
-					//Add points to the exclusion array
-					$exclusion_array[$node->key][] = $rel;
-					$exclusion_array[$node->key][] = $rel2;
-
-				} //endof exclusion_array if
-			} //endof node->related_nodes foreach
-		} //endof nodes foreach
+		//run through each node
+		foreach ($nodes as $n0) {
+			//run through each node's related
+			foreach ($n0->related_nodes as $n1) {
+				$n1 = $this->getNode($n1);
+				if ($this->roadUnpaved($n0->key, $n1->key)) {
+					$this->roads[] = $this->buildRoad($n0, $n1);
+				}
+			}
+		}
 		return array(
-			'roads' => $roads,
+			'roads' => $this->roads,
 			'nodes' => $this->nodes
 			);
 	}
 
 	/**
-	 * Helper function to get a node's coordinates from nodes based on its key
-	 * @param  int|string $search_key the key
-	 * @return Coordinates             the node's coordinates
+	 * Recursive function that builds a 2 or more point road array from two nodes
+	 * @param  Node $n0 first Node
+	 * @param  Node $n1 second Node
+	 * @return array     an array of node keys which
 	 */
-	private function getCoords($search_key) {
-		foreach ($this->nodes as $node) {
-			if ($node->key == $search_key) {
-				return $node->coordinates;
+	private function buildRoad($n0, $n1) {
+		$fin_angle = INF;
+		foreach ($n1->related_nodes as $n2)  {
+			$n2 = $this->getNode($n2);
+			$angle = abs(180 - GraphCalc::getAngle(
+						$n0->coords,
+						$n1->coords,
+						$n2->coords
+						));
+
+			if ($angle < $fin_angle) {
+				$fin_angle = $angle;
+				$fin_n2 = $n2;
 			}
+		}
+		$angle = $fin_angle;
+		$n2 = $fin_n2;
+
+		if ($angle == 0) {
+			if ($this->roadUnpaved($n0->key, $n1->key, $n2->key)) {
+				$x = $this->buildRoad($n1, $n2);
+				array_unshift($x, $n0->key);
+				return $x;
+			} else {
+				$road_key = $this->getRoad($n1->key, $n2->key);
+				$road = $this->roads[$road_key];
+				unset($this->roads[$road_key]);
+
+				$road[] = $n0->key;
+				return $road;
+			}
+		} else {
+			return array($n0->key, $n1->key);
+		}
+	}
+
+	/**
+	 * Helper function to get a node from nodes based on its key
+	 * @param  int|string $search_key the key
+	 * @return Node             the node Object
+	 */
+	private function getNode($search_key) {
+		foreach ($this->nodes as $n0) {
+			if ($n0->key == $search_key) {
+				return $n0;
+			}
+		}
+	}
+
+	/**
+	 * Looks for a road containing the two nodes
+	 * @param  int $n0 key of the first node
+	 * @param  int $n1 key of the second node
+	 * @return int|null     either the key of the road or null
+	 */
+	private function getRoad($n0, $n1) {
+		if (count($this->roads) == 0) return NULL;
+
+		foreach ($this->roads as $key => $road) {
+			if (in_array($n0, $road) && in_array($n1, $road)) {
+				return $key;
+			}
+		}
+		return NULL;
+	}
+
+	/**
+	 * Checks if 2 or 3 node road already exists
+	 * @param  int $n0 key of the first node
+	 * @param  int $n1 key of the second node
+	 * @param  int $n2 optional key of the third node
+	 * @return bool     true if road exists, false if not
+	 */
+	private function roadUnpaved ($n0, $n1, $n2 = NULL) {
+		if ($n2 === NULL) {
+			return ($this->getRoad($n0, $n1) === NULL);
+		} else {
+			return ($this->getRoad($n0, $n1) === NULL 
+				&& $this->getRoad($n1, $n2) === NULL
+				);
 		}
 	}
 }

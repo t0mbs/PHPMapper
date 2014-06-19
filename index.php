@@ -24,5 +24,12 @@ function debugLog($thing) {
 	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 	<script type="text/javascript" src="functions.js"></script>
 </head>
-<canvas id="mainCanvas" height="1000" width="1000"></canvas>
-<canvas id="canvasOverlay" height="1000" width="1000"></canvas>
+<div id="canvasWrapper">
+	<canvas id="mainCanvas" height="500" width="500"></canvas>
+	<canvas id="canvasOverlay" height="500" width="500"></canvas>
+</div>
+<div id="sideBar">
+	<h1>Welcome!</h1>
+	<div class="dynamicContent">
+	</div>
+</div>

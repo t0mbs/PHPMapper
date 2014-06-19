@@ -63,7 +63,6 @@ $(document).ready(function() {
 	    for (var i = 0; i < 6; i++ ) {
 	        color += letters[Math.floor(Math.random() * 16)];
 	    }
-	    console.log(color);
 	    return color;
 	}
 
@@ -105,7 +104,6 @@ $(document).ready(function() {
 				"graph_data": graph
 			}
 			$.post("dijkstra.php", post_data, function(data) {
-				console.log(data);
 				data = $.parseJSON(data);
 				canvasOverlay.strokeStyle=djiColor;
 				canvasOverlay.lineWidth = 4;
@@ -116,12 +114,10 @@ $(document).ready(function() {
 					key = data.trace[i][1]
 					if (nodeA === null) {
 						nodeA = key;
-						console.log("First run! A:" + nodeA);
 					} else {
 						nodeB = nodeA;
 						nodeA = key;
 						drawLine(canvasOverlay, nodes[nodeA].coords, nodes[nodeB].coords);
-						console.log("Subsequent run, A:" + nodeA +", B:" + nodeB);
 					}
 				};
 			})

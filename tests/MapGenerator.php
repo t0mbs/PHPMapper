@@ -3,8 +3,6 @@
  * MapGenerator class file
  */
 class MapGenerator extends GraphGenerator {
-	private $roads = array();
-	private $landmarks = array();
 	public function __construct($x, $y) {
 		parent::__construct($x, $y);
 	}
@@ -114,23 +112,6 @@ class MapGenerator extends GraphGenerator {
 		} else {
 			return array($n0->key, $n1->key);
 		}
-	}
-
-	/**
-	 * Looks for a road containing the two nodes
-	 * @param  int $n0 key of the first node
-	 * @param  int $n1 key of the second node
-	 * @return int|null     either the key of the road or null
-	 */
-	private function getRoad($n0, $n1) {
-		if (count($this->roads) == 0) return NULL;
-
-		foreach ($this->roads as $key => $road) {
-			if (in_array($n0, $road->nodes) && in_array($n1, $road->nodes)) {
-				return $key;
-			}
-		}
-		return NULL;
 	}
 
 	/**

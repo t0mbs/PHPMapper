@@ -102,4 +102,21 @@ class Graph {
 		}
 		return $json_array;
 	}
+
+	/**
+	 * Looks for a road containing the two nodes
+	 * @param  int $n0 key of the first node
+	 * @param  int $n1 key of the second node
+	 * @return int|null     either the key of the road or null
+	 */
+	protected function getRoad($n0, $n1) {
+		if (count($this->roads) == 0) return NULL;
+
+		foreach ($this->roads as $key => $road) {
+			if (in_array($n0, $road->nodes) && in_array($n1, $road->nodes)) {
+				return $key;
+			}
+		}
+		return NULL;
+	}
 }

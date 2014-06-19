@@ -2,10 +2,9 @@
 /**
  * Random Graph Generator 
  */
-class GraphGenerator {
+class GraphGenerator extends Graph {
 	protected $max_x;
 	protected $max_y;
-	protected $nodes = array();
 
 	public function __construct($max_x, $max_y) {
 		$this->max_x = $max_x;

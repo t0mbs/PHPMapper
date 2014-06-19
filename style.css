@@ -16,3 +16,12 @@ canvas#canvasOverlay {
 	top: 0;
 	left: 0;
 }
+
+div#canvasWrapper, div#sideBar {
+	float: left;
+}
+
+div#sideBar {
+	width: 500px;
+	text-align: center;
+}

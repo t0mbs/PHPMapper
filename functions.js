@@ -1,8 +1,4 @@
 $(document).ready(function() {
-	//Add canvas context
-	var mainCanvas=document.getElementById("mainCanvas").getContext("2d");
-	var canvasOverlay=document.getElementById("canvasOverlay").getContext("2d");
-
 	//Instantiate global variables
 	activeNodes = [];
 	////Hardcoded variables
@@ -10,7 +6,16 @@ $(document).ready(function() {
 	scale = 50;
 	dotSize = scale/10;
 	offset = 30;
-	djiColor = "#84EBBE";
+	djiColor = "#1CB4C9";
+
+	//Add canvas context & canvas settings
+	var mainCanvas=document.getElementById("mainCanvas").getContext("2d");
+	var canvasOverlay=document.getElementById("canvasOverlay").getContext("2d");
+	mainCanvas.lineCap="round";
+	canvasOverlay.lineCap="round";
+	canvasOverlay.strokeStyle=djiColor;
+	canvasOverlay.lineWidth = 4;
+
 
 	//Get random map data & draw it on the canvas
 	$.getJSON('random_map.php', function(data) {
@@ -137,10 +142,9 @@ $(document).ready(function() {
 				"graph_data": graph
 			}
 			$.post("dijkstra.php", post_data, function(data) {
+				console.log(data);
 				data = $.parseJSON(data);
-				canvasOverlay.strokeStyle=djiColor;
-				canvasOverlay.lineWidth = 4;
-
+				console.log(data);
 				var nodeA = null;
 				var nodeB = null;
 				for (var i = data.trace.length - 1; i >= 0; i--) {
@@ -152,7 +156,9 @@ $(document).ready(function() {
 						nodeA = key;
 						drawLine(canvasOverlay, nodes[nodeA].coords, nodes[nodeB].coords);
 					}
-				};
+				}
+
+				$("div.dynamicContent").html(data.directions);
 			})
 		}
 	}

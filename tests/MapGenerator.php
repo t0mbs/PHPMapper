@@ -52,18 +52,11 @@ class MapGenerator extends GraphGenerator {
 	}
 
 	/**
-	 * Helper function to get a node from nodes based on its key
-	 * @param  int|string $search_key the key
-	 * @return Node             the node Object
+	 * Checks whether or not a node exists on a certain set of coordinates
+	 * @param  int $x x coordinate
+	 * @param  int $y y coordinate
+	 * @return bool    true if node was found, false if not
 	 */
-	private function getNode($search_key) {
-		foreach ($this->nodes as $n0) {
-			if ($n0->key == $search_key) {
-				return $n0;
-			}
-		}
-	}
-
 	private function nodeOnCoords($x, $y) {
 		foreach ($this->nodes as $node) {
 			if ($node->coords->x == $x && $node->coords->y == $y)
@@ -135,7 +128,8 @@ class MapGenerator extends GraphGenerator {
 		$type_array = array(
 			'l' => array(
 				'lane',
-				'alley'
+				'alley',
+				'drive'
 				),
 			'm' => array(
 				'route',
@@ -154,25 +148,45 @@ class MapGenerator extends GraphGenerator {
 
 		$name_array = array(
 			'a' => array(
-				'arlington'
+				'aardvark',
+				'avuncular',
+				'anthology',
+				'aggregate'
 				),
 			'b' => array(
-				'bowden'
+				'bowden',
+				'balrog',
+				'bacon',
+				'boolean',
+				'belligerent'
+				),
+			'd' => array(
+				'differential'
 				),
 			'e' => array(
-				'entropy'
+				'entropy',
+				'einstein',
+				'eleonore'
 				),
 			'h' => array(
-				'helmington'
+				'hogwarts',
+				'hedonist'
 				),
 			'l' => array(
-				'leitner'
+				'leitner',
+				'lemington'
 				),
 			'r' => array(
-				'rascally'
+				'ragtime',
+				'ramen',
+				'rubic',
+				'robin',
+				'radial'
 				),
 			's' => array(
-				'spock'
+				'spock',
+				'shatner',
+				'string',
 				)
 			);
 

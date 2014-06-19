@@ -46,4 +46,8 @@ class GraphCalc {
 
 		return acos(($a + $b - $c) / sqrt(4 * $a * $b)) * 180/pi();
 	}
+
+	public static function isRight($p0, $p1, $p2) {
+		return (($p1->x - $p0->x)*($p2->y - $p0->y) - ($p1->y - $p0->y)*($p2->x - $p0->x)) < 0;
+	}
 }

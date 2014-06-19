@@ -95,12 +95,80 @@ class Graph {
 
 		//prepare string for transfer (must have an ordered key to avoid losing order)
 		$i = 0;
-		$json_array = array();
+		$json_array = array(
+			'directions' => $this->getStreetDirections($node_stack[$end_node]['trace'])
+			);
 		foreach($node_stack[$end_node]['trace'] as $key => $trace) {
 			$json_array['trace'][] = array($i, $key);
 			$i++;
 		}
 		return $json_array;
+	}
+
+	/**
+	 * Compiles a string of directions to go with the Shortest Path trace
+	 * @param  array $trace array of node keys and distances
+	 * @return string        returns a string containing the directions in the trace 
+	 *                               in human-readable format
+	 */
+	protected function getStreetDirections($trace) {
+		$last_road = "";
+		$aggragate_distance = 0;
+		$fin_str = "";
+		$nodeA = NULL;
+		$nodeB = NULL;
+		$nodeC = NULL;
+		foreach ($trace as $key => $distance) {
+			if ($nodeA == NULL) {
+				$nodeA = $key;
+			} else {
+				$nodeC = $nodeB;
+				$nodeB = $nodeA;
+				$nodeA = $key;
+
+				$current_road =& $this->roads[$this->getRoad($nodeA, $nodeB)]->name;
+				
+				if ($last_road == "") {
+					$last_road = $current_road;
+				}
+
+				if ($last_road != $current_road) {
+					$fin_str .= $this->getDirection($last_road, $aggragate_distance);
+					$aggragate_distance = $distance;
+					$last_road = $current_road;
+					if ($nodeC !== NULL) {
+						$fin_str .= $this->getTurn(
+							$this->getNode($nodeA)->coords,
+							$this->getNode($nodeB)->coords,
+							$this->getNode($nodeC)->coords,
+							$current_road
+							);
+					}
+				} else {
+					$aggragate_distance += $distance;
+				}
+			}
+		}
+		$fin_str .= $this->getDirection($current_road, $aggragate_distance);
+
+		return $fin_str;
+	}
+
+	private function getTurn($p0, $p1, $p2, $road) {
+		if (GraphCalc::isRight($p0, $p1, $p2)) {
+			return "Turn right on $road <br>";
+		}
+		return "Turn left on $road <br>";
+	}
+
+	/**
+	 * Returns a formatted string of the name of the road & the distance
+	 * @param  string $name     road name
+	 * @param  float $distance  distance travelled on road
+	 * @return string           returns the display string
+	 */
+	private function getDirection($name, $distance) {
+		return 'Go down ' . $name . ' for ' . round($distance, 2) . 'km' . '<br><br>';
 	}
 
 	/**
@@ -118,5 +186,17 @@ class Graph {
 			}
 		}
 		return NULL;
+	}
+	/**
+	 * Helper function to get a node from nodes based on its key
+	 * @param  int|string $search_key the key
+	 * @return Node             the node Object
+	 */
+	protected function getNode($search_key) {
+		foreach ($this->nodes as $n0) {
+			if ($n0->key == $search_key) {
+				return $n0;
+			}
+		}
 	}
 }

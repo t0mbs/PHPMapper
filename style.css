@@ -25,3 +25,11 @@ div#sideBar {
 	width: 500px;
 	text-align: center;
 }
+
+div#sideBar h1 {
+	font-family: 'Lobster', cursive;
+}
+
+div#sideBar div.dynamicContent {
+	font-family: 'Open Sans', sans-serif;
+}

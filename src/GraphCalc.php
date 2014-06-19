@@ -47,7 +47,39 @@ class GraphCalc {
 		return acos(($a + $b - $c) / sqrt(4 * $a * $b)) * 180/pi();
 	}
 
+	/**
+	 * Takes three sets of coordinates and returns the dot product
+	 * ==0: straight line
+	 * > 0: left turn
+	 * < 0: right turn
+	 * @param  Coordinates $p0 first set of Coordinates
+	 * @param  Coordinates $p1 second set of Coordinates
+	 * @param  Coordinates $p2 third set of Coordinates
+	 * @return int    returns the dot product of the three point's coordinates
+	 */
+	public static function getDotProduct($p0, $p1, $p2) {
+		return (($p1->x - $p0->x)*($p2->y - $p0->y) - ($p1->y - $p0->y)*($p2->x - $p0->x));
+	}
+
+	/**
+	 * Checks if dot product is equal to 0 and thus, if the line is straight
+	 * @param  Coordinates  $p0 first set of Coordinates
+	 * @param  Coordinates  $p1 second set of Coordinates
+	 * @param  Coordinates  $p2 third set of Coordinates
+	 * @return bool     true if the line is straight
+	 */
+	public static function isOnLine($p0, $p1, $p2) {
+		return  self::getDotProduct($p0, $p1, $p2) == 0;
+	}
+
+	/**
+	 * Checks if dot product is smaller than 0 and thus, if the line is "turns right"
+	 * @param  Coordinates  $p0 first set of Coordinates
+	 * @param  Coordinates  $p1 second set of Coordinates
+	 * @param  Coordinates  $p2 third set of Coordinates
+	 * @return bool     true if the line "turns right"
+	 */
 	public static function isRight($p0, $p1, $p2) {
-		return (($p1->x - $p0->x)*($p2->y - $p0->y) - ($p1->y - $p0->y)*($p2->x - $p0->x)) < 0;
+		return self::getDotProduct($p0, $p1, $p2) < 0;
 	}
 }

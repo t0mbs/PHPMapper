@@ -154,6 +154,14 @@ class Graph {
 		return $fin_str;
 	}
 
+	/**
+	 * [getTurn description]
+	 * @param  Coordinates $p0   Coordinates of point 0
+	 * @param  Coordinates $p1   Coordinates of point 1
+	 * @param  Coordinates $p2   Coordinates of query point
+	 * @param  string $road name of the road
+	 * @return string       returns the display string
+	 */
 	private function getTurn($p0, $p1, $p2, $road) {
 		if (GraphCalc::isRight($p0, $p1, $p2)) {
 			return "Turn right on $road <br>";
@@ -187,6 +195,7 @@ class Graph {
 		}
 		return NULL;
 	}
+
 	/**
 	 * Helper function to get a node from nodes based on its key
 	 * @param  int|string $search_key the key

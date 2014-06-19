@@ -35,7 +35,7 @@ class MapGenerator extends GraphGenerator {
 		//Generates Landmarks
 		for ($y = 0; $y < $this->max_y; $y++) {
 			for ($x = 0; $x < $this->max_x; $x++) {
-				if (!$this->nodeOnCoords($x, $y)) {
+				if (!$this->nodeOnCoords($x, $y) && !$this->edgeOnCoords(new Coordinates($x, $y))) {
 					$this->landmarks[] = new Park($x, $y); 
 				}
 			}
@@ -55,12 +55,40 @@ class MapGenerator extends GraphGenerator {
 	 * Checks whether or not a node exists on a certain set of coordinates
 	 * @param  int $x x coordinate
 	 * @param  int $y y coordinate
-	 * @return bool    true if node was found, false if not
+	 * @return bool|Node    Node if node was found, false if not
 	 */
 	private function nodeOnCoords($x, $y) {
 		foreach ($this->nodes as $node) {
 			if ($node->coords->x == $x && $node->coords->y == $y)
-				return true;
+				return $node;
+		}
+		return false;
+	}
+
+	/**
+	 * Checks if there is an edge on specified coords
+	 * @param  Coordinates $p1 the coordinates of the point to be tested
+	 * @return bool    true if there is an edge on coords
+	 */
+	private function edgeOnCoords($p1) {
+		$node_stack = array();
+		for ($x=$p1->x-1; $x<=$p1->x+1; $x++) {
+			for ($y=$p1->y-1; $y<=$p1->y+1; $y++) {
+				$node = $this->nodeOnCoords($x, $y);
+				if ($node) {
+					$node_stack['nodes'][] = $node;
+					$node_stack['keys'][] = $node->key;
+				}
+			}
+		}
+		foreach ($node_stack['nodes'] as $n0) {
+			foreach($n0->related_nodes as $k2) {
+				$n2 = $this->getNode($k2);
+				if (in_array($n2->key, $node_stack['keys'])) {
+					$p2 = $n2->coords;
+					if (GraphCalc::isOnLine($n0->coords, $p1, $p2)) return true;
+				}
+ 			}
 		}
 		return false;
 	}
@@ -124,6 +152,11 @@ class MapGenerator extends GraphGenerator {
 		}
 	}
 
+	/**
+	 * Generates a random alliterated road name
+	 * @param  int $count the Node count, used to determine the road's type
+	 * @return string        the name of the road
+	 */
 	private function generateName($count) {
 		$type_array = array(
 			'l' => array(
@@ -158,7 +191,8 @@ class MapGenerator extends GraphGenerator {
 				'balrog',
 				'bacon',
 				'boolean',
-				'belligerent'
+				'belligerent',
+				'buck'
 				),
 			'd' => array(
 				'differential'

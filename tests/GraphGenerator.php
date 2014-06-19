@@ -22,12 +22,7 @@ class GraphGenerator extends Graph {
 		for ($y = 0; $y < $this->max_y; $y++) {
 			for ($x = 0; $x < $this->max_x; $x++) {
 				if (rand(0, 9) < 7) {
-					$this->nodes[] = new Node(
-						$key, 
-						$x, 
-						$y, 
-						array()
-						);
+					$this->nodes[] = new Node($key, $x, $y, array());
 					$key ++;
 				}
 			}
@@ -60,7 +55,7 @@ class GraphGenerator extends Graph {
 			foreach($distance_array as $k1 => $distance) {
 				if (count($n0->related_nodes) >= $max_count) break;
 				$n1 = $this->nodes[$k1];
-				if (!in_array($k1, $n0->related_nodes) && $this->unalignedNode($n0, n1)) {
+				if (!in_array($k1, $n0->related_nodes) && $this->unalignedNode($n0, $n1)) {
 					$n0->related_nodes[] = $k1;
 					$n1->related_nodes[] = $n0->key;
 				}

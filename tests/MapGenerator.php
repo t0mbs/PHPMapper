@@ -33,10 +33,12 @@ class MapGenerator extends GraphGenerator {
 		}
 
 		//Generates Landmarks
+		$landmark_nodes = array();
+
 		for ($y = 0; $y < $this->max_y; $y++) {
 			for ($x = 0; $x < $this->max_x; $x++) {
 				if (!$this->nodeOnCoords($x, $y) && !$this->edgeOnCoords(new Coordinates($x, $y))) {
-					$this->landmarks[] = new Park($x, $y); 
+					$this->landmarks[] = new Park($x, $y);
 				}
 			}
 		}

@@ -30,6 +30,16 @@ class GraphCalc {
 	}
 
 	/**
+	 * Checks if two points are adjacent
+	 * @param  Coordinates $p0 the coordinates of the first point
+	 * @param  Coordinates $p1 the coordinates of the second point
+	 * @return bool     true if points are adjacent
+	 */
+	public static function areAdjacent($p0, $p1) {
+		return self::getDistance($p0, $p1) < 2;
+	}
+
+	/**
 	 * Calculates the angle between three sets of coordinates in degrees
 	 * @param  Coordinates $p0 the coordinates of the first point
 	 * @param  Coordinates $p1 the coordinates of the second point and the angle's apex

@@ -3,40 +3,47 @@
  * Graph class file
  */
 class Graph {
-	public $node_list = array();
+	public $roads = array();
+	public $landmarks = array();
+	public $nodes = array();
 
-	public function __construct($map_name) {
-		$this->loadMap($map_name);
+	public function __construct($graph_data) {
+		$this->loadGraph($graph_data);
 		$this->compileEdgeLength();
 	}
 
 	/**
-	 * Loads map's nodes from a specified JSON file
-	 * @param  string $map_name the 
+	 * Loads graph's nodes, roads and landmarks from a specified JSON file
+	 * @param  array $graph_data the 
 	 */
-	protected function loadMap($map_name) {
-		$raw_nodes = json_decode(file_get_contents("resources/$map_name.json"));
-		foreach ($raw_nodes as $node_key => $node) {
-			$this->node_list[$node_key] = 
-				new Node(
-					$node_key,
-					$node->coordinates->x,
-					$node->coordinates->y,
-					$node->related_nodes
-					);
+	protected function loadGraph($graph_data) {
+		foreach($graph_data['roads'] as $road) {
+			$this->roads[] = new Road(
+				$road['name'],
+				$road['nodes']
+				);
+		}
+
+		foreach($graph_data['nodes'] as $node) {
+			$this->nodes[] = new Node(
+				$node['key'],
+				$node['coords']['x'],
+				$node['coords']['y'],
+				$node['related_nodes']
+				);
 		}
 	}
 
 	/**
 	 * Compiles the length of each node's edges using this and the relevant 
-	 * node's coordinates
+	 * node's coords
 	 */
 	protected function compileEdgeLength() {
-		foreach ($this->node_list as $node) {
+		foreach ($this->nodes as $node) {
 			$weighed_related_nodes = [];
 			foreach ($node->related_nodes as $rel_node_key) {
 				$weighed_related_nodes[$rel_node_key] = 
-					GraphCalc::getDistance($node->coordinates, $this->node_list[$rel_node_key]->coordinates);
+					GraphCalc::getDistance($node->coords, $this->nodes[$rel_node_key]->coords);
 			}
 			$node->related_nodes = $weighed_related_nodes;
 		}
@@ -51,7 +58,7 @@ class Graph {
 	public function getShortestPath($start_node, $end_node) {	
 
 		//Instantiate array of node keys to default distance (INF)
-		foreach ($this->node_list as $key => $value){
+		foreach ($this->nodes as $key => $value){
 			$node_stack[$key]['weight'] = INF;
 		}
 
@@ -62,7 +69,7 @@ class Graph {
 
 		while (isset($node_stack[$end_node]) && $current_key != $end_node) {
 			//Symlink because these paths are too damn long!
-			$related_nodes =& $this->node_list[$current_key]->related_nodes;
+			$related_nodes =& $this->nodes[$current_key]->related_nodes;
 
 			//set new weights
 			foreach($related_nodes as $linked_key => $linked_weight) {

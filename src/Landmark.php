@@ -6,7 +6,7 @@ abstract class Landmark extends GraphElt {
 	public $desirability;
 	public $range;
 
-	private function setDesirability($desirability_str, $sign = '+') {
+	protected function setDesirability($desirability_str, $sign = '+') {
 		switch($desirability_str) {
 			case 'high':
 				$this->desirability = 3;

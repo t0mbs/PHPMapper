@@ -4,6 +4,7 @@
  */
 class MapGenerator extends GraphGenerator {
 	private $roads = array();
+	private $landmarks = array();
 	public function __construct($x, $y) {
 		parent::__construct($x, $y);
 	}
@@ -15,9 +16,8 @@ class MapGenerator extends GraphGenerator {
 	public function randomMap() {
 		$nodes = $this->randomGraph();
 
-		//run through each node
+		//Generates nameless roads
 		foreach ($nodes as $n0) {
-			//run through each node's related
 			foreach ($n0->related_nodes as $n1) {
 				$n1 = $this->getNode($n1);
 				if ($this->roadUnpaved($n0->key, $n1->key)) {
@@ -29,14 +29,49 @@ class MapGenerator extends GraphGenerator {
 			}
 		}
 
+		//Generates road names
 		foreach ($this->roads as $road) {
 			$road->name = $this->generateName(count($road->nodes));
 		}
 
+		//Generates Landmarks
+		for ($y = 0; $y < $this->max_y; $y++) {
+			for ($x = 0; $x < $this->max_x; $x++) {
+				if (!$this->nodeOnCoords($x, $y)) {
+					$this->landmarks[] = new Park($x, $y); 
+				}
+			}
+		}
+		
+		//Change node distance weights
+		//IMPLEMENT
+
 		return array(
 			'roads' => $this->roads,
-			'nodes' => $this->nodes
+			'nodes' => $this->nodes,
+			'landmarks' => $this->landmarks
 			);
+	}
+
+	/**
+	 * Helper function to get a node from nodes based on its key
+	 * @param  int|string $search_key the key
+	 * @return Node             the node Object
+	 */
+	private function getNode($search_key) {
+		foreach ($this->nodes as $n0) {
+			if ($n0->key == $search_key) {
+				return $n0;
+			}
+		}
+	}
+
+	private function nodeOnCoords($x, $y) {
+		foreach ($this->nodes as $node) {
+			if ($node->coords->x == $x && $node->coords->y == $y)
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -78,19 +113,6 @@ class MapGenerator extends GraphGenerator {
 			}
 		} else {
 			return array($n0->key, $n1->key);
-		}
-	}
-
-	/**
-	 * Helper function to get a node from nodes based on its key
-	 * @param  int|string $search_key the key
-	 * @return Node             the node Object
-	 */
-	private function getNode($search_key) {
-		foreach ($this->nodes as $n0) {
-			if ($n0->key == $search_key) {
-				return $n0;
-			}
 		}
 	}
 

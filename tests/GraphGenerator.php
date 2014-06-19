@@ -18,11 +18,11 @@ class GraphGenerator {
 	 */
 	public function randomGraph() {
 
-		//Generating nodes linearly with a probability of 0.6
+		//Generating nodes linearly with a probability of 0.7
 		$key = 0;
 		for ($y = 0; $y < $this->max_y; $y++) {
 			for ($x = 0; $x < $this->max_x; $x++) {
-				if (rand(0, 4) < 3) {
+				if (rand(0, 9) < 7) {
 					$this->nodes[] = new Node(
 						$key, 
 						$x, 
@@ -45,14 +45,19 @@ class GraphGenerator {
 					GraphCalc::getDistance($n0->coords, $n1->coords);
 				}
 			}
+			//Sort nodes from closest to farthest
 			asort($distance_array);
 
+			//Set the base node connection to 4 
 			$max_count = 4;
+			//-1 if it's a border node, -2 if it's a corner node 
 			if ($n0->coords->x == 0 || $n0->coords->x == $this->max_x-1) 
 				$max_count -= 1;
 			if ($n0->coords->y == 0 || $n0->coords->y == $this->max_y-1) 
 				$max_count -= 1;
 
+			//Go through list of nodes and pick out the closest nodes fulfilling
+			//all connection requirements
 			foreach($distance_array as $n1 => $distance) {
 				if (count($n0->related_nodes) >= $max_count) break;
 				if (!in_array($n1, $n0->related_nodes) && $this->unalignedNode($n0, $n1)) {
@@ -60,12 +65,15 @@ class GraphGenerator {
 					$this->nodes[$n1]->related_nodes[] = $n0->key;
 				}
 			}
-		}
+		}		
+		
 		return $this->nodes;
 	}
 
 	/**
 	 * Checks that node n1 is unaligned with any nodes related to n0
+	 * For two nodes to be aligned with regard to n0, they have to all have either
+	 * the same x value and y direction, or the same y value and x direction
 	 * @param  Node $n0 the first node
 	 * @param  Node $n1 the first node
 	 * @return bool 	true if n1 is unaligned

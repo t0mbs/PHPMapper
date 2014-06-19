@@ -5,6 +5,12 @@
 abstract class Landmark extends GraphElt {
 	public $desirability;
 	public $range;
+	public $name;
+
+	public function __construct($x, $y, $name) {
+		$this->coords = new Coordinates($x, $y);
+		$this->name = $name;
+	}
 
 	protected function setDesirability($desirability_str, $sign = '+') {
 		switch($desirability_str) {

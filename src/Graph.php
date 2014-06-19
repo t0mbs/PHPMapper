@@ -13,8 +13,8 @@ class Graph {
 	}
 
 	/**
-	 * Loads graph's nodes, roads and landmarks from a specified JSON file
-	 * @param  array $graph_data the 
+	 * Loads graph's nodes, roads and landmarks from an array
+	 * @param  array $graph_data array of roads, nodes and landmarks
 	 */
 	protected function loadGraph($graph_data) {
 		foreach($graph_data['roads'] as $road) {
@@ -30,6 +30,14 @@ class Graph {
 				$node['coords']['x'],
 				$node['coords']['y'],
 				$node['related_nodes']
+				);
+		}
+
+		foreach($graph_data['landmarks'] as $landmark) {
+			$this->landmarks[] = new Park(
+				$landmark['coords']['x'],
+				$landmark['coords']['y'],
+				$landmark['name']
 				);
 		}
 	}
@@ -181,15 +189,15 @@ class Graph {
 
 	/**
 	 * Looks for a road containing the two nodes
-	 * @param  int $n0 key of the first node
-	 * @param  int $n1 key of the second node
+	 * @param  int $k0 key of the first node
+	 * @param  int $k1 key of the second node
 	 * @return int|null     either the key of the road or null
 	 */
-	protected function getRoad($n0, $n1) {
+	protected function getRoad($k0, $k1) {
 		if (count($this->roads) == 0) return NULL;
 
 		foreach ($this->roads as $key => $road) {
-			if (in_array($n0, $road->nodes) && in_array($n1, $road->nodes)) {
+			if (in_array($k0, $road->nodes) && in_array($k1, $road->nodes)) {
 				return $key;
 			}
 		}

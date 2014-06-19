@@ -16,8 +16,8 @@ class MapGenerator extends GraphGenerator {
 
 		//Generates nameless roads
 		foreach ($nodes as $n0) {
-			foreach ($n0->related_nodes as $n1) {
-				$n1 = $this->getNode($n1);
+			foreach ($n0->related_nodes as $k1) {
+				$n1 = $this->getNode($k1);
 				if ($this->roadUnpaved($n0->key, $n1->key)) {
 					$this->roads[] = new Road(
 						'',
@@ -58,9 +58,9 @@ class MapGenerator extends GraphGenerator {
 	 * @return bool|Node    Node if node was found, false if not
 	 */
 	private function nodeOnCoords($x, $y) {
-		foreach ($this->nodes as $node) {
-			if ($node->coords->x == $x && $node->coords->y == $y)
-				return $node;
+		foreach ($this->nodes as $n0) {
+			if ($n0->coords->x == $x && $n0->coords->y == $y)
+				return $n0;
 		}
 		return false;
 	}
@@ -74,10 +74,10 @@ class MapGenerator extends GraphGenerator {
 		$node_stack = array();
 		for ($x=$p1->x-1; $x<=$p1->x+1; $x++) {
 			for ($y=$p1->y-1; $y<=$p1->y+1; $y++) {
-				$node = $this->nodeOnCoords($x, $y);
-				if ($node) {
-					$node_stack['nodes'][] = $node;
-					$node_stack['keys'][] = $node->key;
+				$n0 = $this->nodeOnCoords($x, $y);
+				if ($n0) {
+					$node_stack['nodes'][] = $n0;
+					$node_stack['keys'][] = $n0->key;
 				}
 			}
 		}
@@ -101,8 +101,8 @@ class MapGenerator extends GraphGenerator {
 	 */
 	private function buildRoad($n0, $n1) {
 		$fin_angle = INF;
-		foreach ($n1->related_nodes as $n2)  {
-			$n2 = $this->getNode($n2);
+		foreach ($n1->related_nodes as $k2)  {
+			$n2 = $this->getNode($k2);
 			$angle = abs(180 - GraphCalc::getAngle(
 						$n0->coords,
 						$n1->coords,
@@ -195,7 +195,8 @@ class MapGenerator extends GraphGenerator {
 				'buck'
 				),
 			'd' => array(
-				'differential'
+				'differential',
+				'dalek'
 				),
 			'e' => array(
 				'entropy',

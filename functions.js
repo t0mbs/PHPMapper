@@ -1,13 +1,19 @@
 $(document).ready(function() {
+	//Add canvas context
 	var mainCanvas=document.getElementById("mainCanvas").getContext("2d");
 	var canvasOverlay=document.getElementById("canvasOverlay").getContext("2d");
+
+	//Instantiate global variables
+	activeNodes = [];
+	////Hardcoded variables
 	debugView = false;
 	scale = 50;
 	dotSize = scale/10;
 	offset = 30;
-	activeNodes = [];
 	djiColor = "#84EBBE";
-	$.getJSON('http://localhost/mapper/random_map.php', function(data) {
+
+	//Get random map data & draw it on the canvas
+	$.getJSON('random_map.php', function(data) {
 		graph = data;
 	    nodes = graph.nodes;
 	    roads = graph.roads;
@@ -42,7 +48,7 @@ $(document).ready(function() {
     	}
 	});
 
-
+	//Upon click, activate or disactive a node
 	$(window).on('click', function() {
 		var x = (event.pageX-offset-dotSize)/scale;
 		var y = (event.pageY-offset-dotSize)/scale;
@@ -57,6 +63,10 @@ $(document).ready(function() {
 		}
 	});
 	
+	/**
+	 * Gets a random hexadecimal color code
+	 * @return string hexadecimal color code preceded by a #
+	 */
 	function getRandomColor() {
 	    var letters = '0123456789ABCDEF'.split('');
 	    var color = '#';
@@ -66,10 +76,24 @@ $(document).ready(function() {
 	    return color;
 	}
 
+	/**
+	 * Distance formula calculating the distance between two elements
+	 * @param  int|float x1 x value of elt1
+	 * @param  int|float y1 y value of elt1
+	 * @param  int|float x2 x value of elt2
+	 * @param  int|float y2 y value of elt2
+	 * @return int|float    distance between elt1 and elt2
+	 */
 	function getDistance(x1, y1, x2, y2) {
 		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	}
 
+	/**
+	 * Runs through nodes looking for the closest to a given point
+	 * @param  int|float x x value of point
+	 * @param  int|float y y value of point
+	 * @return Node   returns a Node object
+	 */
 	function getClosestNode(x, y) {
 		var currentDist = Number.POSITIVE_INFINITY;
 		var nodeA;
@@ -87,14 +111,23 @@ $(document).ready(function() {
 		return nodeA
 	}
 
+	/**
+	 * Upon activating a node we add it to activeNodes, add a div to body and
+	 * potentially find the shortest route.
+	 */
 	function addToActive(node) {
+		//Currently only supports 2 active nodes
 		if (activeNodes.length == 2) {
 			removeFromActive(activeNodes[activeNodes.length-1]);
 		}
+
+		//add node to activeNodes array & add a "pin" div
 		activeNodes.push(node);
 		x_coords = node.coords.x*scale - dotSize + offset + 7.5 - 13;
 		y_coords = node.coords.y*scale - dotSize + offset + 7.5 - 33;
 		$("body").append("<div node_key='" + node.key + "' class='pin' style='top: " + y_coords + "; left: " + x_coords + "'></div>");
+		
+		//if there are more than 1 active nodes we must run Djisktra
 		if (activeNodes.length >= 2) {
 			var post_data =  {
 				"dij": {
@@ -124,17 +157,27 @@ $(document).ready(function() {
 		}
 	}
 
+	/**
+	 * Remove a node from the activeNodes array, wipe the overlay canvas & remove the "pin" div
+	 * @param  Node node the node to be removed
+	 */
 	function removeFromActive(node) {
 		activeNodes.splice(activeNodes.indexOf(node), 1);
 		canvasOverlay.clearRect (0, 0, 1000, 1000);
 		$("div[node_key=" + node.key + "]").remove();
 	}
 
-	function drawLine(canvas, n0, n1) {
-		var xini = n0.x*scale + offset;
-		var yini = n0.y*scale + offset;
-		var xend = n1.x*scale + offset;
-		var yend = n1.y*scale + offset;
+	/**
+	 * Draw a line from point A to point B
+	 * @param  Context canvas the canvas on which to draw
+	 * @param  Object a     the first coordinates object
+	 * @param  Object b     the second coordinates object
+	 */
+	function drawLine(canvas, a, b) {
+		var xini = a.x*scale + offset;
+		var yini = a.y*scale + offset;
+		var xend = b.x*scale + offset;
+		var yend = b.y*scale + offset;
 		canvas.beginPath();
 		canvas.moveTo(xini, yini);
 		canvas.lineTo(xend, yend);

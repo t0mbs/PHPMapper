@@ -1,9 +1,12 @@
 $(document).ready(function() {
-	var c=document.getElementById("myCanvas").getContext("2d");
+	var mainCanvas=document.getElementById("mainCanvas").getContext("2d");
+	var canvasOverlay=document.getElementById("canvasOverlay").getContext("2d");
+	debugView = false;
 	scale = 50;
 	dotSize = scale/10;
-	offset = 20;
+	offset = 30;
 	activeNodes = [];
+	djiColor = "#84EBBE";
 	$.getJSON('http://localhost/mapper/random_map.php', function(data) {
 		graph = data;
 	    nodes = graph.nodes;
@@ -11,30 +14,32 @@ $(document).ready(function() {
 	    landmarks = data.landmarks;
 
 		for (var j = roads.length - 1; j >= 0; j--) {
-    		c.strokeStyle=getRandomColor();
+    		mainCanvas.strokeStyle=getRandomColor();
     		var road = roads[j].nodes;
     		for (var k = road.length - 2; k >= 0; k--) {
     			var n0 = nodes[road[k]].coords;
     			var n1 = nodes[road[k+1]].coords;
-    			drawLine(n0, n1);
+    			drawLine(mainCanvas, n0, n1);
     		};
     	};
 
-    	 for (var i = nodes.length - 1; i >= 0; i--) {
-	    	node = nodes[i];
-	    	c.font="10px Times Roman";
-	    	c.fillText(
-	    		node.key, 
-	    		node.coords.x*scale + offset + dotSize,
-	    		node.coords.y*scale + offset - dotSize
-	    		);
-	    	c.fillRect(
-	    		node.coords.x*scale - dotSize/2 + offset,
-	    		node.coords.y*scale - dotSize/2 + offset,
-	    		dotSize,
-	    		dotSize
-	    		);
-	    };
+    	if (debugView) {
+    		 for (var i = nodes.length - 1; i >= 0; i--) {
+		    	node = nodes[i];
+		    	mainCanvas.font="10px Times Roman";
+		    	mainCanvas.fillText(
+		    		node.key, 
+		    		node.coords.x*scale + offset + dotSize,
+		    		node.coords.y*scale + offset - dotSize
+		    		);
+		    	mainCanvas.fillRect(
+		    		node.coords.x*scale - dotSize/2 + offset,
+		    		node.coords.y*scale - dotSize/2 + offset,
+		    		dotSize,
+		    		dotSize
+		    		);
+		    };
+    	}
 	});
 
 
@@ -58,6 +63,7 @@ $(document).ready(function() {
 	    for (var i = 0; i < 6; i++ ) {
 	        color += letters[Math.floor(Math.random() * 16)];
 	    }
+	    console.log(color);
 	    return color;
 	}
 
@@ -83,10 +89,13 @@ $(document).ready(function() {
 	}
 
 	function addToActive(node) {
+		if (activeNodes.length == 2) {
+			removeFromActive(activeNodes[activeNodes.length-1]);
+		}
 		activeNodes.push(node);
-		x_coords = node.coords.x*scale - dotSize + offset + 7.5;
-			y_coords = node.coords.y*scale - dotSize + offset + 7.5;
-			$("body").append("<div node_key='" + node.key + "' class='pin' style='top: " + y_coords + "; left: " + x_coords + "'></div>");
+		x_coords = node.coords.x*scale - dotSize + offset + 7.5 - 13;
+		y_coords = node.coords.y*scale - dotSize + offset + 7.5 - 33;
+		$("body").append("<div node_key='" + node.key + "' class='pin' style='top: " + y_coords + "; left: " + x_coords + "'></div>");
 		if (activeNodes.length >= 2) {
 			var post_data =  {
 				"dij": {
@@ -98,36 +107,41 @@ $(document).ready(function() {
 			$.post("dijkstra.php", post_data, function(data) {
 				console.log(data);
 				data = $.parseJSON(data);
-				var nodeA = false;
-				var nodeB = false;
-				c.strokeStyle=getRandomColor();
-				c.lineWidth = 10;
-				$.each(data.trace, function(key, length) {
-					if (!nodeA) {
+				canvasOverlay.strokeStyle=djiColor;
+				canvasOverlay.lineWidth = 4;
+
+				var nodeA = null;
+				var nodeB = null;
+				for (var i = data.trace.length - 1; i >= 0; i--) {
+					key = data.trace[i][1]
+					if (nodeA === null) {
 						nodeA = key;
+						console.log("First run! A:" + nodeA);
 					} else {
 						nodeB = nodeA;
 						nodeA = key;
-						drawLine(nodes[nodeA].coords, nodes[nodeB].coords);
+						drawLine(canvasOverlay, nodes[nodeA].coords, nodes[nodeB].coords);
+						console.log("Subsequent run, A:" + nodeA +", B:" + nodeB);
 					}
-				});
+				};
 			})
 		}
 	}
 
 	function removeFromActive(node) {
-		activeNodes.pop(node);
+		activeNodes.splice(activeNodes.indexOf(node), 1);
+		canvasOverlay.clearRect (0, 0, 1000, 1000);
 		$("div[node_key=" + node.key + "]").remove();
 	}
 
-	function drawLine(n0, n1) {
+	function drawLine(canvas, n0, n1) {
 		var xini = n0.x*scale + offset;
 		var yini = n0.y*scale + offset;
 		var xend = n1.x*scale + offset;
 		var yend = n1.y*scale + offset;
-		c.beginPath();
-		c.moveTo(xini, yini);
-		c.lineTo(xend, yend);
-		c.stroke();
+		canvas.beginPath();
+		canvas.moveTo(xini, yini);
+		canvas.lineTo(xend, yend);
+		canvas.stroke();
 	}
 });

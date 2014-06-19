@@ -92,6 +92,14 @@ class Graph {
 				}
 			}
 		}
-		return $node_stack[$end_node];
+
+		//prepare string for transfer (must have an ordered key to avoid losing order)
+		$i = 0;
+		$json_array = array();
+		foreach($node_stack[$end_node]['trace'] as $key => $trace) {
+			$json_array['trace'][] = array($i, $key);
+			$i++;
+		}
+		return $json_array;
 	}
 }

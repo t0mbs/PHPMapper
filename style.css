@@ -1,6 +1,18 @@
+body {
+	margin: 0;
+}
 div.pin {
 	position: absolute;
-	width: 10px;
-	height: 10px;
-	background-color: red;
+	position: absolute;
+	width: 20px;
+	height: 40px;
+	background: url('http://www.sweatthestyle.com/wp-content/uploads/2013/11/Google-Maps-Pin.png');
+	background-size: 100%;
+	background-repeat: no-repeat;
+}
+
+canvas#canvasOverlay {
+	position: absolute;
+	top: 0;
+	left: 0;
 }

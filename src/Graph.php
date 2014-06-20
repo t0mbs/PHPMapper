@@ -2,7 +2,7 @@
 /**
  * Graph class file
  */
-class Graph {
+class Graph extends Functional {
 	public $roads = array();
 	public $nodes = array();
 
@@ -16,21 +16,26 @@ class Graph {
 	 * @param  array $graph_data array of roads and nodes
 	 */
 	protected function loadGraph($graph_data) {
-		foreach($graph_data['roads'] as $road) {
-			$this->roads[] = new Road(
-				$road['name'],
-				$road['nodes']
-				);
-		}
+		$new_node = function($node) {
+			return array(
+				new Node(
+					$node['key'],
+					$node['coords']['x'],
+					$node['coords']['y'],
+					$node['related_nodes']
+				));
+		};
 
-		foreach($graph_data['nodes'] as $node) {
-			$this->nodes[] = new Node(
-				$node['key'],
-				$node['coords']['x'],
-				$node['coords']['y'],
-				$node['related_nodes']
-				);
-		}
+		$new_road = function($road) {
+			return array(
+				new Road(
+					$road['name'], 
+					$road['nodes']
+				));
+		};
+
+		$this->roads = $this->functionalForeach($graph_data['roads'], $new_road);
+		$this->nodes = $this->functionalForeach($graph_data['nodes'], $new_node);
 	}
 
 	/**
@@ -38,14 +43,23 @@ class Graph {
 	 * node's coords
 	 */
 	protected function compileEdgeLength() {
-		foreach ($this->nodes as $node) {
-			$weighed_related_nodes = [];
-			foreach ($node->related_nodes as $rel_node_key) {
-				$weighed_related_nodes[$rel_node_key] = 
-					GraphCalc::getDistance($node->coords, $this->nodes[$rel_node_key]->coords);
+		$weigh_nodes = function($node) use (&$weigh_nodes) {
+			$k1 =& array_pop($node->related_nodes);
+			$p0 =& $this->getNode($node->key)->coords;
+			$p1 =& $this->getNode($k1)->coords;
+			$distance = GraphCalc::getDistance($p0, $p1); 
+			if (count($node->related_nodes) > 0) {
+				return array_replace(array($k1 => $distance), $weigh_nodes($node));
 			}
-			$node->related_nodes = $weighed_related_nodes;
-		}
+			return array($k1 => $distance);
+		};
+
+		$this->functionalFor(
+			$this->nodes, 
+			function($node) use (&$weigh_nodes){
+				$weights =& $weigh_nodes($node);
+				$node->related_nodes = $weights;
+			});
 	}
 
 	/**
@@ -55,7 +69,6 @@ class Graph {
 	 * @return array             The trace of the shortest path
 	 */
 	public function getShortestPath($start_node, $end_node) {	
-
 		//Instantiate array of node keys to default distance (INF)
 		foreach ($this->nodes as $key => $value){
 			$node_stack[$key]['weight'] = INF;
@@ -68,7 +81,7 @@ class Graph {
 
 		while (isset($node_stack[$end_node]) && $current_key != $end_node) {
 			//Symlink because these paths are too damn long!
-			$related_nodes =& $this->nodes[$current_key]->related_nodes;
+			$related_nodes =& $this->getNode($current_key)->related_nodes;
 
 			//set new weights
 			foreach($related_nodes as $linked_key => $linked_weight) {
@@ -124,9 +137,8 @@ class Graph {
 				$nodeC = $nodeB;
 				$nodeB = $nodeA;
 				$nodeA = $key;
-
 				$current_road =& $this->roads[$this->getRoad($nodeA, $nodeB)]->name;
-				
+
 				if ($last_road == "") {
 					$last_road = $current_road;
 				}
@@ -186,7 +198,6 @@ class Graph {
 	 */
 	protected function getRoad($k0, $k1) {
 		if (count($this->roads) == 0) return NULL;
-
 		foreach ($this->roads as $key => $road) {
 			if (in_array($k0, $road->nodes) && in_array($k1, $road->nodes)) {
 				return $key;

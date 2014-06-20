@@ -2,7 +2,7 @@ $(document).ready(function() {
 	//Instantiate global variables
 	activeNodes = [];
 	////Hardcoded variables
-	debugView = false;
+	debugView = true;
 	scale = 50;
 	dotSize = scale/10;
 	offset = 30;

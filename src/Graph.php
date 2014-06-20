@@ -4,7 +4,6 @@
  */
 class Graph {
 	public $roads = array();
-	public $landmarks = array();
 	public $nodes = array();
 
 	public function __construct($graph_data) {
@@ -13,8 +12,8 @@ class Graph {
 	}
 
 	/**
-	 * Loads graph's nodes, roads and landmarks from an array
-	 * @param  array $graph_data array of roads, nodes and landmarks
+	 * Loads graph's nodes and roads from an array
+	 * @param  array $graph_data array of roads and nodes
 	 */
 	protected function loadGraph($graph_data) {
 		foreach($graph_data['roads'] as $road) {
@@ -30,14 +29,6 @@ class Graph {
 				$node['coords']['x'],
 				$node['coords']['y'],
 				$node['related_nodes']
-				);
-		}
-
-		foreach($graph_data['landmarks'] as $landmark) {
-			$this->landmarks[] = new Park(
-				$landmark['coords']['x'],
-				$landmark['coords']['y'],
-				$landmark['name']
 				);
 		}
 	}

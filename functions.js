@@ -22,16 +22,6 @@ $(document).ready(function() {
 		graph = data;
 	    nodes = graph.nodes;
 	    roads = graph.roads;
-	    landmarks = data.landmarks;
-
-	    for (var i = landmarks.length - 1; i >= 0; i--) {
-	    	mainCanvas.fillRect(
-		    		landmarks[i].coords.x*scale - dotSize/2 + offset,
-		    		landmarks[i].coords.y*scale - dotSize/2 + offset,
-		    		dotSize,
-		    		dotSize
-		    		);
-    	};
 
 		for (var j = roads.length - 1; j >= 0; j--) {
     		mainCanvas.strokeStyle=getRandomColor();

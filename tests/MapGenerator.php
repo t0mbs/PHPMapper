@@ -32,43 +32,10 @@ class MapGenerator extends GraphGenerator {
 			$road->name = $this->generateName(count($road->nodes));
 		}
 
-		//Generates Landmarks
-		$landmark_points = array();
-
-		for ($y = 0; $y < $this->max_y; $y++) {
-			for ($x = 0; $x < $this->max_x; $x++) {
-				if (!$this->nodeOnCoords($x, $y) && !$this->edgeOnCoords(new Coordinates($x, $y))) {
-					$landmark_points[] = new Coordinates($x, $y);
-
-				}
-			}
-		}
-
-		for ($i=count($landmark_points)-1; $i>=0; $i--) { 
-			$point =& $landmark_points[$i];
-			array_splice($landmark_points, $i);
-			foreach ($this->linkLandmarkPoints($point, $landmark_points) as $point) {
-				$this->landmarks[] = new Park($point->x, $point->y);
-			}
-		}
-
 		return array(
 			'roads' => $this->roads,
-			'nodes' => $this->nodes,
-			'landmarks' => $this->landmarks
+			'nodes' => $this->nodes
 			);
-	}
-
-	
-	private function linkLandmarkPoints($p0, $landmark_points) {
-		for ($i=count($landmark_points)-1; $i>=0; $i--) { 
-			$p1 =& $landmark_points[$i];
-			if (GraphCalc::areAdjacent($p0, $p1)) {
-				array_splice($landmark_points, $i);
-				return array_merge(array($p0), $this->linkLandmarkPoints($p1, $landmark_points));
-			}
-		}
-		return array($p0);
 	}
 
 	/**

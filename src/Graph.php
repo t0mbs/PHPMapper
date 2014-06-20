@@ -42,17 +42,29 @@ class Graph extends Functional {
 	 * node's coords
 	 */
 	protected function compileEdgeLength($node, $nodes) {
-		$find_node = function ($search_key, $array) use (&$find_node) {
+
+		/**
+		 * Gets a node's coordinates from an array of node values
+		 * @param  int $search_key the key of the node we're looking for
+		 * @param  array $array the array we're looking in
+		 * @return  returns the coordinate array of the node
+		 */
+		$get_node_coords = function ($search_key, $array) use (&$get_node_coords) {
 			$n0 =& array_pop($array);
 			if ($search_key == $n0['key'])
-				return $n0;
-			return $find_node($search_key, $array);
+				return $n0['coords'];
+			return $get_node_coords($search_key, $array);
 		};
 
-		$weigh_nodes = function($node) use (&$weigh_nodes, &$find_node, $nodes) {
+		/**
+		 * Goes through a node's related nodes and weighs the edge
+		 * @param $node the node in question
+		 * @return  an array of node keys to weights 
+		 */
+		$weigh_nodes = function($node) use (&$weigh_nodes, &$get_node_coords, $nodes) {
 			$k1 =& array_pop($node['related_nodes']);
-			$p0 =& $find_node($node['key'], $nodes)['coords'];
-			$p1 =& $find_node($k1, $nodes)['coords'];
+			$p0 =& $get_node_coords($node['key'], $nodes);
+			$p1 =& $get_node_coords($k1, $nodes);
 			$distance = GraphCalc::getDistance($p0, $p1); 
 			if (count($node['related_nodes']) > 0) {
 				return array_replace(array($k1 => $distance), $weigh_nodes($node));

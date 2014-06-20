@@ -26,6 +26,9 @@ class GraphCalc {
 	 * @return float       returns a float of the distance
 	 */
 	public static function getDistance($p0, $p1) {
+		if (is_array($p0)) {
+			return sqrt(pow ($p1['x'] - $p0['x'], 2) + pow ($p1['y'] - $p0['y'], 2));
+		}
 		return sqrt(pow ($p1->x - $p0->x, 2) + pow ($p1->y - $p0->y, 2));
 	}
 

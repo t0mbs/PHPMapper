@@ -8,7 +8,6 @@ class Graph extends Functional {
 
 	public function __construct($graph_data) {
 		$this->loadGraph($graph_data);
-		$this->compileEdgeLength();
 	}
 
 	/**
@@ -16,13 +15,13 @@ class Graph extends Functional {
 	 * @param  array $graph_data array of roads and nodes
 	 */
 	protected function loadGraph($graph_data) {
-		$new_node = function($node) {
+		$new_node = function($node) use ($graph_data) {
 			return array(
 				new Node(
 					$node['key'],
 					$node['coords']['x'],
 					$node['coords']['y'],
-					$node['related_nodes']
+					$this->compileEdgeLength($node, $graph_data['nodes'])
 				));
 		};
 
@@ -42,24 +41,39 @@ class Graph extends Functional {
 	 * Compiles the length of each node's edges using this and the relevant 
 	 * node's coords
 	 */
-	protected function compileEdgeLength() {
-		$weigh_nodes = function($node) use (&$weigh_nodes) {
-			$k1 =& array_pop($node->related_nodes);
-			$p0 =& $this->getNode($node->key)->coords;
-			$p1 =& $this->getNode($k1)->coords;
+	protected function compileEdgeLength($node, $nodes) {
+		$find_node = function ($search_key, $array) use (&$find_node) {
+			$n0 =& array_pop($array);
+			if ($search_key == $n0['key'])
+				return $n0;
+			return $find_node($search_key, $array);
+		};
+
+		$weigh_nodes = function($node) use (&$weigh_nodes, &$find_node, $nodes) {
+			$k1 =& array_pop($node['related_nodes']);
+			$p0 =& $find_node($node['key'], $nodes)['coords'];
+			$p1 =& $find_node($k1, $nodes)['coords'];
 			$distance = GraphCalc::getDistance($p0, $p1); 
-			if (count($node->related_nodes) > 0) {
+			if (count($node['related_nodes']) > 0) {
 				return array_replace(array($k1 => $distance), $weigh_nodes($node));
 			}
 			return array($k1 => $distance);
 		};
 
-		$this->functionalFor(
-			$this->nodes, 
-			function($node) use (&$weigh_nodes){
-				$weights =& $weigh_nodes($node);
-				$node->related_nodes = $weights;
-			});
+		return $weigh_nodes($node);
+	}
+
+	/**
+	 * Helper function to get a node from nodes based on its key
+	 * @param  int|string $search_key the key
+	 * @return Node             the node Object
+	 */
+	protected function getNode($search_key) {
+		foreach ($this->nodes as $n0) {
+			if ($n0->key == $search_key) {
+				return $n0;
+			}
+		}
 	}
 
 	/**
@@ -204,18 +218,5 @@ class Graph extends Functional {
 			}
 		}
 		return NULL;
-	}
-
-	/**
-	 * Helper function to get a node from nodes based on its key
-	 * @param  int|string $search_key the key
-	 * @return Node             the node Object
-	 */
-	protected function getNode($search_key) {
-		foreach ($this->nodes as $n0) {
-			if ($n0->key == $search_key) {
-				return $n0;
-			}
-		}
 	}
 }
